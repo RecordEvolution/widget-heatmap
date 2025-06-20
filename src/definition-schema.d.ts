@@ -29,10 +29,7 @@ export type Continuous = boolean;
  * If checked, the heatmap will show the values of the data points in the chart.
  */
 export type ShowValues = boolean;
-export type HeatColors = {
-    color?: Color;
-    [k: string]: unknown;
-}[];
+export type HeatColors = Color[];
 /**
  * The name for this data series
  */
