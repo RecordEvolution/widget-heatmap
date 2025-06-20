@@ -4,25 +4,11 @@ import tinycolor, { ColorInput } from 'tinycolor2'
 import { Duration } from 'luxon'
 
 import * as echarts from 'echarts/core'
-import {
-    TitleComponent,
-    TooltipComponent,
-    GridComponent,
-    DataZoomComponent,
-    LegendComponent
-} from 'echarts/components'
-import { CustomChart } from 'echarts/charts'
+import { TooltipComponent, GridComponent, VisualMapComponent } from 'echarts/components'
+import { HeatmapChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 
-echarts.use([
-    TitleComponent,
-    TooltipComponent,
-    GridComponent,
-    DataZoomComponent,
-    CustomChart,
-    CanvasRenderer,
-    LegendComponent
-])
+echarts.use([TooltipComponent, GridComponent, VisualMapComponent, HeatmapChart, CanvasRenderer])
 
 import { Color, InputData } from './definition-schema'
 import { CustomSeriesOption, CustomSeriesRenderItemReturn, EChartsOption, SeriesOption } from 'echarts'
@@ -31,8 +17,8 @@ type Theme = {
     theme_name: string
     theme_object: any
 }
-@customElement('widget-statehistory-versionplaceholder')
-export class WidgetStateHistory extends LitElement {
+@customElement('widget-heatmap-versionplaceholder')
+export class WidgetHeatmap extends LitElement {
     @property({ type: Object })
     inputData?: InputData
 
@@ -60,129 +46,57 @@ export class WidgetStateHistory extends LitElement {
 
     constructor() {
         super()
-        this.renderItem = this.renderItem.bind(this)
 
         this.template = {
-            tooltip: {},
             title: {
                 text: 'Profile',
                 left: 'left'
             },
-            legend: {
-                data: [
-                    {
-                        name: 'RUNNING',
-                        itemStyle: {
-                            color: '#27ae60' // green
-                        }
-                    },
-                    {
-                        name: 'STOPPED',
-                        itemStyle: {
-                            color: '#c0392b' // red
-                        }
-                    }
-                ],
-                textStyle: {
-                    fontSize: 12
-                },
-                top: 'top',
-                right: 0,
-                selectedMode: false
+            tooltip: {
+                position: 'top'
             },
-            toolbox: {
-                show: true,
-                feature: {
-                    // dataZoom: {
-                    //     yAxisIndex: 'none'
-                    // },
-                    // dataView: { readOnly: false },
-                    restore: {}
-                    // saveAsImage: {}
-                }
-            },
-            dataZoom: [
-                {
-                    type: 'slider',
-                    filterMode: 'weakFilter',
-                    showDataShadow: false,
-                    top: 400,
-                    labelFormatter: ''
-                },
-                {
-                    type: 'inside',
-                    filterMode: 'weakFilter'
-                }
-            ],
-            grid: {
-                top: 50,
-                bottom: 10,
-                left: 10,
-                right: 10,
-                containLabel: true
-            },
+            grid: { top: 80 },
             xAxis: {
-                type: 'time',
-                scale: true
+                type: 'category',
+                data: [],
+                splitArea: {
+                    show: true
+                }
             },
             yAxis: {
                 type: 'category',
-                axisLine: {
-                    show: false
+                data: [],
+                splitArea: {
+                    show: true
                 }
+            },
+            visualMap: {
+                show: false,
+                min: 0,
+                max: 14,
+                calculable: true,
+                realtime: true,
+                orient: 'horizontal',
+                right: 'center',
+                top: 20
             },
             series: [
                 {
-                    type: 'custom',
-                    name: 'RUNNING',
-                    renderItem: undefined,
-                    itemStyle: {
-                        opacity: 0.8
+                    name: 'Punch Card',
+                    type: 'heatmap',
+                    data: [],
+                    label: {
+                        show: true
                     },
-                    encode: {
-                        x: [1, 2],
-                        y: 0
-                    },
-                    data: []
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
                 }
             ]
         } as EChartsOption
-    }
-
-    renderItem(params: any, api: any): CustomSeriesRenderItemReturn {
-        const asset = api.value(0)
-        const start = api.coord([api.value(1), asset])
-        const end = api.coord([api.value(2), asset])
-        const height = api.size([0, 1])?.[1] * 0.6
-        const rectShape = echarts.graphic.clipRectByRect(
-            {
-                x: start[0],
-                y: start[1] - height / 2,
-                width: end[0] - start[0],
-                height: height
-            },
-            {
-                x: params.coordSys.x,
-                y: params.coordSys.y,
-                width: params.coordSys.width,
-                height: params.coordSys.height
-            }
-        )
-        // console.log('renderItem', params, api, rectShape)
-        return (
-            rectShape && {
-                type: 'rect',
-                transition: ['shape'],
-                shape: rectShape,
-                style: api.style()
-            }
-        )
-    }
-
-    stateToColor(state: string): string {
-        if (!this.inputData?.stateMap) return '#ccc'
-        const colors = this.inputData.stateMap
-        return (colors.find((s) => s.name === state)?.color || '#ccc') as string
     }
 
     update(changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>): void {
@@ -253,40 +167,19 @@ export class WidgetStateHistory extends LitElement {
                 const data =
                     (distincts.length === 1 ? ds.data : ds.data?.filter((d) => d.pivot === piv)) ?? []
 
-                const data1 = data
-                    .map((d) => ({ ...d, tsp: new Date(d.tsp ?? '') }))
-                    .sort((a, b) => a.tsp.getTime() - b.tsp.getTime())
-
-                const data2 = data1.map((d, j) => ({
-                    name: d.state,
-                    value: [
-                        name,
-                        d.tsp,
-                        data1[j + 1]?.tsp ?? new Date(),
-                        Duration.fromMillis(
-                            (data1[j + 1]?.tsp.getTime() ?? new Date().getTime()) - d.tsp.getTime()
-                        ).toFormat('h:mm:ss')
-                    ],
-                    itemStyle: {
-                        normal: {
-                            color: this.stateToColor(d.state ?? '')
-                        }
-                    }
-                }))
+                const data1 = data.map((d, j) => [d.x, d.y, d.heat])
 
                 // preparing the echarts series option for later application
                 const pds: any = {
-                    type: 'custom',
+                    type: 'heatmap',
                     name: name,
-                    renderItem: this.renderItem,
-                    itemStyle: {
-                        opacity: 0.8
+                    emphasis: {
+                        itemStyle: {
+                            borderColor: '#333',
+                            borderWidth: 1
+                        }
                     },
-                    encode: {
-                        x: [1, 2],
-                        y: 0
-                    },
-                    data: data2 ?? []
+                    data: data1 ?? []
                 }
                 let chartName = ds.chartName ?? ''
                 chartName = chartName.replace('#split#', prefix)
@@ -316,56 +209,23 @@ export class WidgetStateHistory extends LitElement {
             this.requestUpdate()
 
             const option: any = window.structuredClone(this.template)
-            option.renderItem = this.renderItem
 
             // Title
             option.title.text = label
-            // option.title.textStyle.fontSize = 25 * modifier
-
-            option.tooltip.formatter = function (params: any) {
-                return params.marker + params.name + ': ' + params.value[3] + ' ms'
-            }
 
             // Axis
             option.xAxis.name = this.inputData?.axis?.xAxisLabel ?? ''
-            option.dataZoom[0].show = this.inputData?.axis?.xAxisZoom ?? false
-            option.toolbox.show = this.inputData?.axis?.xAxisZoom ?? false
+            option.yAxis.name = this.inputData?.axis?.yAxisLabel ?? ''
 
             option.series = chart.series
 
-            option.legend.show = this.inputData?.axis?.showLegend ?? true
-            if (option.legend.show) {
-                const legend = this.makeLegend()
-                option.legend.data = legend.data
-                option.series.push(...legend.series)
-            }
+            option.visualMap.show = this.inputData?.axis?.showLegend ?? true
+
             const oldOption: any = chart.echart?.getOption() ?? {}
             const notMerge = oldOption.series?.length !== chart.series.length
             chart.echart?.setOption(option, { notMerge })
             // chart.echart?.resize()
         })
-    }
-
-    makeLegend() {
-        const data =
-            this.inputData?.stateMap?.map((s) => ({
-                name: s.name ?? '',
-                itemStyle: {
-                    color: s.color,
-                    borderColor: this.theme?.theme_object?.timeAxis?.splitLine?.lineStyle ?? '#ccc',
-                    borderWidth: 1
-                }
-            })) ?? []
-
-        // otherwise the legend will not be rendered
-        const series =
-            this.inputData?.stateMap?.map((s) => ({
-                type: 'custom',
-                name: s.name ?? '',
-                renderItem: () => null, // no visual rendering
-                data: []
-            })) ?? []
-        return { data, series }
     }
 
     deleteCharts() {

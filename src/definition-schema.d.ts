@@ -7,21 +7,19 @@
 
 export type Title = string;
 export type Subtitle = string;
-export type TimeAxisLabel = string;
-/**
- * If checked, a zoom tool will be shown on the time-axis to zoom into the chart.
- */
-export type TimeAxisZoomTool = boolean;
+export type XAxisLabel = string;
+export type YAxisLabel = string;
 /**
  * If checked, a legend will be shown in the chart.
  */
 export type ShowLegend = boolean;
+export type MinValue = number;
+export type MaxValue = number;
 /**
- * The name of the state as found in the data.
+ * If checked, the heatmap will be drawn as a continuous gradient. Otherwise it will be drawn as discrete blocks.
  */
-export type StateName = string;
-export type StateMap = {
-    name?: StateName;
+export type Continuous = boolean;
+export type HeatColors = {
     color?: Color;
     [k: string]: unknown;
 }[];
@@ -34,17 +32,17 @@ export type Label = string;
  */
 export type ChartName = string;
 /**
- * For each asset the chart shows a line reflecting their state changes over time. This label is used to identify the asset in the chart.
+ * The x value of the data point.
  */
-export type AssetLabel = string;
+export type XValue = string;
 /**
- * The timestamp of the state change event.
+ * The y value of the data point.
  */
-export type EventTimestamp = string;
+export type YValue = string;
 /**
- * The state the asset is in starting from the event timestamp.
+ * The heat value of the data point. This is the value that will be used to determine the color of the heatmap.
  */
-export type State = string;
+export type HeatValue = number;
 /**
  * You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as split column, then you will get a line for each city.
  */
@@ -53,9 +51,9 @@ export type SplitDataBy = string;
  * The data used to draw this data series.
  */
 export type Data = {
-    label?: AssetLabel;
-    tsp?: EventTimestamp;
-    state?: State;
+    x?: XValue;
+    y?: YValue;
+    heat?: HeatValue;
     pivot?: SplitDataBy;
     [k: string]: unknown;
 }[];
@@ -70,14 +68,21 @@ export interface InputData {
     title?: Title;
     subTitle?: Subtitle;
     axis?: AxisSettings;
-    stateMap?: StateMap;
+    heatMap?: AxisSettings1;
     dataseries?: Dataseries;
     [k: string]: unknown;
 }
 export interface AxisSettings {
-    xAxisLabel?: TimeAxisLabel;
-    xAxisZoom?: TimeAxisZoomTool;
+    xAxisLabel?: XAxisLabel;
+    yAxisLabel?: YAxisLabel;
     showLegend?: ShowLegend;
+    [k: string]: unknown;
+}
+export interface AxisSettings1 {
+    min?: MinValue;
+    max?: MaxValue;
+    continuous?: Continuous;
+    colors?: HeatColors;
     [k: string]: unknown;
 }
 /**

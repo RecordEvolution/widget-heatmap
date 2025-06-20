@@ -18,17 +18,16 @@
             "order": 3,
             "properties": {
                 "xAxisLabel": {
-                    "title": "Time-Axis Label",
+                    "title": "X-Axis Label",
                     "type": "string",
                     "dataDrivenDisabled": false,
                     "order": 3
                 },
-                "xAxisZoom": {
-                    "title": "Time Axis Zoom Tool",
-                    "type": "boolean",
-                    "description": "If checked, a zoom tool will be shown on the time-axis to zoom into the chart.",
-                    "dataDrivenDisabled": true,
-                    "order": 6
+                "yAxisLabel": {
+                    "title": "Y-Axis Label",
+                    "type": "string",
+                    "dataDrivenDisabled": false,
+                    "order": 3
                 },
                 "showLegend": {
                     "title": "Show Legend",
@@ -39,28 +38,47 @@
                 }
             }
         },
-        "stateMap": {
-            "title": "State Map",
-            "type": "array",
-            "dataDrivenDisabled": true,
-            "order": 3,
-            "items": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "title": "State Name",
-                        "description": "The name of the state as found in the data.",
-                        "type": "string",
-                        "required": true,
-                        "order": 1
-                    },
-                    "color": {
-                        "title": "Color",
-                        "description": "The color of the state in the chart.",
-                        "type": "color",
-                        "color": true,
-                        "required": true,
-                        "order": 2
+        "heatMap": {
+            "title": "Axis Settings",
+            "type": "object",
+            "order": 4,
+            "properties": {
+                "min": {
+                    "title": "Min Value",
+                    "type": "number",
+                    "dataDrivenDisabled": false,
+                    "order": 1
+                },
+                "max": {
+                    "title": "Max Value",
+                    "type": "number",
+                    "dataDrivenDisabled": false,
+                    "order": 2
+                },
+                "continuous": {
+                    "title": "Continuous",
+                    "type": "boolean",
+                    "description": "If checked, the heatmap will be drawn as a continuous gradient. Otherwise it will be drawn as discrete blocks.",
+                    "dataDrivenDisabled": false,
+                    "order": 3
+                },
+                "colors": {
+                    "title": "Heat Colors",
+                    "type": "array",
+                    "dataDrivenDisabled": true,
+                    "order": 4,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "color": {
+                                "title": "Color",
+                                "description": "The color of the state in the chart.",
+                                "type": "color",
+                                "color": true,
+                                "required": true,
+                                "order": 2
+                            }
+                        }
                     }
                 }
             }
@@ -69,7 +87,7 @@
             "title": "Dataseries",
             "type": "array",
             "dataDrivenDisabled": true,
-            "order": 4,
+            "order": 5,
             "items": {
                 "type": "object",
                 "properties": {
@@ -95,23 +113,24 @@
                         "items": {
                             "type": "object",
                             "properties": {
-                                "label": {
-                                    "title": "Asset Label",
-                                    "description": "For each asset the chart shows a line reflecting their state changes over time. This label is used to identify the asset in the chart.",
+                                "x": {
+                                    "title": "x Value",
+                                    "description": "The x value of the data point.",
                                     "order": 3,
-                                    "type": "string"
+                                    "type": "string",
+                                    "required": true
                                 },
-                                "tsp": {
-                                    "title": "Event Timestamp",
-                                    "description": "The timestamp of the state change event.",
+                                "y": {
+                                    "title": "y Value",
+                                    "description": "The y value of the data point.",
                                     "type": "string",
                                     "order": 1,
                                     "required": true
                                 },
-                                "state": {
-                                    "title": "State",
-                                    "description": "The state the asset is in starting from the event timestamp.",
-                                    "type": "string",
+                                "heat": {
+                                    "title": "Heat Value",
+                                    "description": "The heat value of the data point. This is the value that will be used to determine the color of the heatmap.",
+                                    "type": "number",
                                     "order": 2,
                                     "required": true
                                 },

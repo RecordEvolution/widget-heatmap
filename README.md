@@ -1,21 +1,21 @@
-# \<widget-statehistory>
+# \<widget-heatmap>
 
 This webcomponent follows the [open-wc](https://github.com/open-wc/open-wc) recommendation.
 
 ## Installation
 
 ```bash
-npm i @record-evolution/widget-statehistory
+npm i @record-evolution/widget-heatmap
 ```
 
 ## Usage
 
 ```html
 <script type="module">
-    import 'widget-statehistory/widget-statehistory.js'
+    import 'widget-heatmap/widget-heatmap.js'
 </script>
 
-<widget-statehistory-1.7.0></widget-statehistory-1.7.0>
+<widget-heatmap-1.7.0></widget-heatmap-1.7.0>
 ```
 
 ## Expected data format
