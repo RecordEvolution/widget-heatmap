@@ -172,6 +172,7 @@ export class WidgetHeatmap extends LitElement {
 
                 let binWidth = 0
                 let axisMax
+                let data1
                 if (this.xAxisType() === 'value') {
                     const xValues = data.map((d) => Number(d.x)).sort((a, b) => a - b)
                     binWidth = Math.min(
@@ -180,11 +181,12 @@ export class WidgetHeatmap extends LitElement {
                             .filter((v) => v > 0)
                     )
                     axisMax = Math.max(...xValues) + binWidth
+                    const offset = binWidth / 2
+
+                    data1 = data.map((d: any, j) => [Number(d.x) + offset, d.y, d.heat])
+                } else {
+                    data1 = data.map((d: any, j) => [d.x, d.y, d.heat])
                 }
-                const offset = binWidth / 2
-
-                const data1 = data.map((d: any, j) => [d.x + offset, d.y, d.heat])
-
                 // preparing the echarts series option for later application
                 const pds: any = {
                     type: 'heatmap',

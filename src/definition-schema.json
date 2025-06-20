@@ -77,17 +77,12 @@
                     "dataDrivenDisabled": true,
                     "order": 4,
                     "items": {
-                        "type": "object",
-                        "properties": {
-                            "color": {
-                                "title": "Color",
-                                "description": "The color of the state in the chart.",
-                                "type": "color",
-                                "color": true,
-                                "required": true,
-                                "order": 2
-                            }
-                        }
+                        "title": "Color",
+                        "description": "The color of the state in the chart.",
+                        "type": "color",
+                        "color": true,
+                        "required": true,
+                        "order": 2
                     }
                 }
             }
@@ -125,7 +120,7 @@
                                 "x": {
                                     "title": "x Value",
                                     "description": "The x value of the data point.",
-                                    "order": 3,
+                                    "order": 1,
                                     "type": "string",
                                     "required": true
                                 },
@@ -133,14 +128,14 @@
                                     "title": "y Value",
                                     "description": "The y value of the data point.",
                                     "type": "string",
-                                    "order": 1,
+                                    "order": 2,
                                     "required": true
                                 },
                                 "heat": {
                                     "title": "Heat Value",
                                     "description": "The heat value of the data point. This is the value that will be used to determine the color of the heatmap.",
                                     "type": "number",
-                                    "order": 2,
+                                    "order": 3,
                                     "required": true
                                 },
                                 "pivot": {
