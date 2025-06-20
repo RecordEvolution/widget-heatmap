@@ -13,7 +13,13 @@ export type YAxisLabel = string;
  * If checked, a legend will be shown in the chart.
  */
 export type ShowLegend = boolean;
+/**
+ * The minimum value of the heatmap. Values below this will be colored with the first color in the heatmap colors.
+ */
 export type MinValue = number;
+/**
+ * The maximum value of the heatmap. Values above this will be colored with the last color in the heatmap colors.
+ */
 export type MaxValue = number;
 /**
  * If checked, the heatmap will be drawn as a continuous gradient. Otherwise it will be drawn as discrete blocks.
@@ -72,7 +78,7 @@ export interface InputData {
     title?: Title;
     subTitle?: Subtitle;
     axis?: AxisSettings;
-    heatMap?: AxisSettings1;
+    heatMap?: HeatSettings;
     dataseries?: Dataseries;
     [k: string]: unknown;
 }
@@ -82,7 +88,7 @@ export interface AxisSettings {
     showLegend?: ShowLegend;
     [k: string]: unknown;
 }
-export interface AxisSettings1 {
+export interface HeatSettings {
     min?: MinValue;
     max?: MaxValue;
     continuous?: Continuous;
