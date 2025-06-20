@@ -35,10 +35,6 @@ export type HeatColors = Color[];
  */
 export type Label = string;
 /**
- * If two dataseries have the same 'Chart Name', they will be drawn in the same chart. Otherwise they will get their own chart. If the name contains #split# as substring then a separat chart will be drawn for each split dataseries.
- */
-export type ChartName = string;
-/**
  * The x value of the data point.
  */
 export type XValue = string;
@@ -66,7 +62,6 @@ export type Data = {
 }[];
 export type Dataseries = {
     label?: Label;
-    chartName?: ChartName;
     data?: Data;
     [k: string]: unknown;
 }[];
