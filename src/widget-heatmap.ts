@@ -71,6 +71,7 @@ export class WidgetHeatmap extends LitElement {
                 }
             },
             visualMap: {
+                type: 'continuous',
                 show: false,
                 min: 0,
                 max: 14,
@@ -78,7 +79,8 @@ export class WidgetHeatmap extends LitElement {
                 realtime: true,
                 orient: 'horizontal',
                 right: 'center',
-                top: 20
+                top: 20,
+                inRange: { color: ['green', 'yellow', 'red'] }
             },
             series: [
                 {
@@ -164,15 +166,33 @@ export class WidgetHeatmap extends LitElement {
                 const prefix = piv ?? ''
                 const label = ds.label ?? ''
                 const name = prefix + (!!prefix && !!label ? ' - ' : '') + label
+
                 const data =
                     (distincts.length === 1 ? ds.data : ds.data?.filter((d) => d.pivot === piv)) ?? []
 
-                const data1 = data.map((d, j) => [d.x, d.y, d.heat])
+                let binWidth = 0
+                let axisMax
+                if (this.xAxisType() === 'value') {
+                    const xValues = data.map((d) => Number(d.x)).sort((a, b) => a - b)
+                    binWidth = Math.min(
+                        ...xValues
+                            .map((x, i, arr) => (i > 0 ? x - arr[i - 1] : Infinity))
+                            .filter((v) => v > 0)
+                    )
+                    axisMax = Math.max(...xValues) + binWidth
+                }
+                const offset = binWidth / 2
+
+                const data1 = data.map((d: any, j) => [d.x + offset, d.y, d.heat])
 
                 // preparing the echarts series option for later application
                 const pds: any = {
                     type: 'heatmap',
                     name: name,
+                    axisMax,
+                    label: {
+                        show: this.inputData?.heatMap?.showValues ?? false
+                    },
                     emphasis: {
                         itemStyle: {
                             borderColor: '#333',
@@ -217,15 +237,52 @@ export class WidgetHeatmap extends LitElement {
             option.xAxis.name = this.inputData?.axis?.xAxisLabel ?? ''
             option.yAxis.name = this.inputData?.axis?.yAxisLabel ?? ''
 
+            option.xAxis.type = this.xAxisType()
+            option.yAxis.type = this.yAxisType()
+
+            let allData
+            if (option.xAxis.type === 'category') {
+                allData = chart.series.flatMap((s: any) => s.data)
+                const xCategories = [...new Set(allData.map((d: any) => d[0]))]
+                option.xAxis.data = xCategories
+            }
+            if (option.yAxis.type === 'category') {
+                allData ??= chart.series.flatMap((s: any) => s.data)
+                const yCategories = [...new Set(allData.map((d: any) => d[1]))]
+                option.yAxis.data = yCategories
+            }
+
+            if (option.xAxis.type === 'value') {
+                option.xAxis.max = Math.max(...chart.series.map((s: any) => s.axisMax))
+            }
+            // Series
             option.series = chart.series
 
+            // VisualMap
             option.visualMap.show = this.inputData?.axis?.showLegend ?? true
+            option.visualMap.min = this.inputData?.heatMap?.min ?? 0
+            option.visualMap.max = this.inputData?.heatMap?.max ?? 14
+            option.visualMap.type = this.inputData?.heatMap?.continuous ? 'continuous' : 'piecewise'
+            option.visualMap.inRange.color = this.inputData?.heatMap?.colors
 
             const oldOption: any = chart.echart?.getOption() ?? {}
             const notMerge = oldOption.series?.length !== chart.series.length
             chart.echart?.setOption(option, { notMerge })
             // chart.echart?.resize()
         })
+    }
+
+    xAxisType(): 'value' | 'log' | 'category' | 'time' | undefined {
+        if (this.inputData?.axis?.timeseries) return 'time'
+        const onePoint = this.inputData?.dataseries?.[0]?.data?.[0]
+        if (!isNaN(Number(onePoint?.x))) return 'value'
+        return 'category'
+    }
+
+    yAxisType(): 'value' | 'log' | 'category' | undefined {
+        const onePoint = this.inputData?.dataseries?.[0]?.data?.[0]
+        if (!isNaN(Number(onePoint?.y))) return 'value'
+        return 'category'
     }
 
     deleteCharts() {

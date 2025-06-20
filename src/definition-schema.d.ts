@@ -19,6 +19,10 @@ export type MaxValue = number;
  * If checked, the heatmap will be drawn as a continuous gradient. Otherwise it will be drawn as discrete blocks.
  */
 export type Continuous = boolean;
+/**
+ * If checked, the heatmap will show the values of the data points in the chart.
+ */
+export type ShowValues = boolean;
 export type HeatColors = {
     color?: Color;
     [k: string]: unknown;
@@ -82,6 +86,7 @@ export interface AxisSettings1 {
     min?: MinValue;
     max?: MaxValue;
     continuous?: Continuous;
+    showValues?: ShowValues;
     colors?: HeatColors;
     [k: string]: unknown;
 }

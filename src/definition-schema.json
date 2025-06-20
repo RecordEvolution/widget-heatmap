@@ -62,6 +62,13 @@
                     "dataDrivenDisabled": false,
                     "order": 3
                 },
+                "showValues": {
+                    "title": "showValues",
+                    "type": "boolean",
+                    "description": "If checked, the heatmap will show the values of the data points in the chart.",
+                    "dataDrivenDisabled": false,
+                    "order": 4
+                },
                 "colors": {
                     "title": "Heat Colors",
                     "type": "array",
