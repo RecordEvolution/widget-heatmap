@@ -1,17 +1,22 @@
 import { html, css, LitElement, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import tinycolor, { ColorInput } from 'tinycolor2'
-import { Duration } from 'luxon'
 
 import * as echarts from 'echarts/core'
-import { TooltipComponent, GridComponent, VisualMapComponent } from 'echarts/components'
+import { TooltipComponent, GridComponent, VisualMapComponent, TitleComponent } from 'echarts/components'
 import { HeatmapChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
 
-echarts.use([TooltipComponent, GridComponent, VisualMapComponent, HeatmapChart, CanvasRenderer])
+echarts.use([
+    TooltipComponent,
+    GridComponent,
+    VisualMapComponent,
+    HeatmapChart,
+    CanvasRenderer,
+    TitleComponent
+])
 
-import { Color, InputData } from './definition-schema'
-import { CustomSeriesOption, CustomSeriesRenderItemReturn, EChartsOption, SeriesOption } from 'echarts'
+import { InputData } from './definition-schema'
+import { EChartsOption, SeriesOption } from 'echarts'
 
 type Theme = {
     theme_name: string
@@ -50,7 +55,8 @@ export class WidgetHeatmap extends LitElement {
         this.template = {
             title: {
                 text: 'Profile',
-                left: 'left'
+                left: '10%',
+                top: 20
             },
             tooltip: {
                 position: 'top'
@@ -78,7 +84,7 @@ export class WidgetHeatmap extends LitElement {
                 calculable: true,
                 realtime: true,
                 orient: 'horizontal',
-                right: 'center',
+                right: '9%',
                 top: 20,
                 inRange: { color: ['green', 'yellow', 'red'] }
             },
@@ -155,14 +161,12 @@ export class WidgetHeatmap extends LitElement {
             chartM.doomed = true
         })
         this.inputData.dataseries.forEach((ds, l) => {
-            ds.chartName ??= ''
-
             ds.data ??= []
 
             // pivot data
-            const distincts = [...new Set(ds.data.map((d) => d.pivot))].sort()
+            const distincts = [...new Set(ds.data.map((d) => d.pivot ?? ''))].sort()
 
-            distincts.forEach((piv, i) => {
+            distincts.forEach((piv) => {
                 const prefix = piv ?? ''
                 const label = ds.label ?? ''
                 const name = prefix + (!!prefix && !!label ? ' - ' : '') + label
@@ -174,16 +178,13 @@ export class WidgetHeatmap extends LitElement {
                 let axisMax
                 let data1
                 if (this.xAxisType() === 'value') {
-                    const xValues = data.map((d) => Number(d.x)).sort((a, b) => a - b)
-                    binWidth = Math.min(
-                        ...xValues
-                            .map((x, i, arr) => (i > 0 ? x - arr[i - 1] : Infinity))
-                            .filter((v) => v > 0)
-                    )
-                    axisMax = Math.max(...xValues) + binWidth
+                    const xValues = data.map((d) => Number(d.x)).sort((a, b) => a - b) ?? []
+                    binWidth =
+                        Math.min(...xValues.map((x, i, arr) => (i > 0 ? x - arr[i - 1] : Infinity))) ?? 0
+                    axisMax = Math.max(...xValues) + 1
                     const offset = binWidth / 2
 
-                    data1 = data.map((d: any, j) => [Number(d.x) + offset, d.y, d.heat])
+                    data1 = data.map((d: any, j) => [Number(d.x) + 0.5, d.y, d.heat])
                 } else {
                     data1 = data.map((d: any, j) => [d.x, d.y, d.heat])
                 }
@@ -191,7 +192,6 @@ export class WidgetHeatmap extends LitElement {
                 const pds: any = {
                     type: 'heatmap',
                     name: name,
-                    axisMax,
                     label: {
                         show: this.inputData?.heatMap?.showValues ?? false
                     },
@@ -203,10 +203,7 @@ export class WidgetHeatmap extends LitElement {
                     },
                     data: data1 ?? []
                 }
-                let chartName = ds.chartName ?? ''
-                chartName = chartName.replace('#split#', prefix)
-
-                const chart = this.setupChart(chartName)
+                const chart = this.setupChart(name)
                 chart?.series.push(pds)
             })
         })
@@ -270,7 +267,7 @@ export class WidgetHeatmap extends LitElement {
             const oldOption: any = chart.echart?.getOption() ?? {}
             const notMerge = oldOption.series?.length !== chart.series.length
             chart.echart?.setOption(option, { notMerge })
-            // chart.echart?.resize()
+            chart.echart?.resize()
         })
     }
 

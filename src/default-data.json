@@ -1,6 +1,4 @@
 {
-    "title": "Heatmap",
-    "subTitle": "This is an example of a heatmap chart.",
     "axis": {
         "xAxisLabel": "hour",
         "yAxisLabel": "day",
@@ -15,7 +13,7 @@
     },
     "dataseries": [
         {
-            "label": "Punchcard Data",
+            "label": "Punch card data",
             "chartName": "",
             "data": [
                 { "x": 0, "y": "Monday", "heat": 0 },

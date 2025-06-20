@@ -102,13 +102,6 @@
                         "required": true,
                         "order": 1
                     },
-                    "chartName": {
-                        "title": "Chart Name",
-                        "description": "If two dataseries have the same 'Chart Name', they will be drawn in the same chart. Otherwise they will get their own chart. If the name contains #split# as substring then a separat chart will be drawn for each split dataseries.",
-                        "type": "string",
-                        "dataDrivenDisabled": true,
-                        "order": 3
-                    },
                     "data": {
                         "title": "Data",
                         "description": "The data used to draw this data series.",
