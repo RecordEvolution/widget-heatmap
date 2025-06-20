@@ -39,34 +39,36 @@
             }
         },
         "heatMap": {
-            "title": "Axis Settings",
+            "title": "Heat Settings",
             "type": "object",
-            "order": 4,
+            "order": 6,
             "properties": {
                 "min": {
                     "title": "Min Value",
                     "type": "number",
-                    "dataDrivenDisabled": false,
+                    "description": "The minimum value of the heatmap. Values below this will be colored with the first color in the heatmap colors.",
+                    "dataDrivenDisabled": true,
                     "order": 1
                 },
                 "max": {
                     "title": "Max Value",
                     "type": "number",
-                    "dataDrivenDisabled": false,
+                    "description": "The maximum value of the heatmap. Values above this will be colored with the last color in the heatmap colors.",
+                    "dataDrivenDisabled": true,
                     "order": 2
                 },
                 "continuous": {
                     "title": "Continuous",
                     "type": "boolean",
                     "description": "If checked, the heatmap will be drawn as a continuous gradient. Otherwise it will be drawn as discrete blocks.",
-                    "dataDrivenDisabled": false,
+                    "dataDrivenDisabled": true,
                     "order": 3
                 },
                 "showValues": {
-                    "title": "showValues",
+                    "title": "Show Values",
                     "type": "boolean",
                     "description": "If checked, the heatmap will show the values of the data points in the chart.",
-                    "dataDrivenDisabled": false,
+                    "dataDrivenDisabled": true,
                     "order": 4
                 },
                 "colors": {
