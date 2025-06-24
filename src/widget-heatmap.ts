@@ -76,18 +76,20 @@ export class WidgetHeatmap extends LitElement {
                     show: true
                 }
             },
-            visualMap: {
-                type: 'continuous',
-                show: false,
-                min: 0,
-                max: 14,
-                calculable: true,
-                realtime: true,
-                orient: 'horizontal',
-                right: '9%',
-                top: 20,
-                inRange: { color: ['green', 'yellow', 'red'] }
-            },
+            visualMap: [
+                {
+                    type: 'continuous',
+                    show: false,
+                    min: 0,
+                    max: 14,
+                    calculable: true,
+                    realtime: true,
+                    orient: 'horizontal',
+                    right: '9%',
+                    top: 20,
+                    inRange: { color: ['green', 'yellow', 'red'] }
+                }
+            ],
             series: [
                 {
                     name: 'Punch Card',
@@ -191,6 +193,7 @@ export class WidgetHeatmap extends LitElement {
                 // preparing the echarts series option for later application
                 const pds: any = {
                     type: 'heatmap',
+                    axisMax,
                     name: name,
                     label: {
                         show: this.inputData?.heatMap?.showValues ?? false
@@ -227,7 +230,7 @@ export class WidgetHeatmap extends LitElement {
             chart.series.sort((a, b) => ((a.name as string) > (b.name as string) ? 1 : -1))
             this.requestUpdate()
 
-            const option: any = window.structuredClone(this.template)
+            const option: any = chart.echart?.getOption() ?? window.structuredClone(this.template)
 
             // Title
             option.title.text = label
@@ -254,21 +257,27 @@ export class WidgetHeatmap extends LitElement {
             if (option.xAxis.type === 'value') {
                 option.xAxis.max = Math.max(...chart.series.map((s: any) => s.axisMax))
             }
-            // Series
-            option.series = chart.series
 
             // VisualMap
-            option.visualMap.show = this.inputData?.axis?.showLegend ?? true
-            option.visualMap.min = this.inputData?.heatMap?.min ?? 0
-            option.visualMap.max = this.inputData?.heatMap?.max ?? 14
-            option.visualMap.type = this.inputData?.heatMap?.continuous ? 'continuous' : 'piecewise'
-            option.visualMap.inRange.color =
-                this.inputData?.heatMap?.colors?.map(
-                    (c, i) => c ?? this.theme?.theme_object?.visualMap?.color?.[i]
-                ) ?? this.theme?.theme_object?.visualMap?.color
+            option.visualMap[0].show = this.inputData?.axis?.showLegend ?? true
+            option.visualMap[0].min = this.inputData?.heatMap?.min ?? 0
+            option.visualMap[0].max = this.inputData?.heatMap?.max ?? 14
+            option.visualMap[0].type = this.inputData?.heatMap?.continuous ? 'continuous' : 'piecewise'
+            option.visualMap[0].inRange.color = this.inputData?.heatMap?.colors?.map(
+                (c, i) => c || this.theme?.theme_object?.visualMap?.color?.[i]
+            )
+            if (!option.visualMap[0].inRange.color?.length) {
+                option.visualMap[0].inRange.color = this.theme?.theme_object?.visualMap?.color ?? [
+                    '#bf444c',
+                    '#d88273',
+                    '#f6efa6'
+                ]
+            }
 
-            const oldOption: any = chart.echart?.getOption() ?? {}
-            const notMerge = oldOption.series?.length !== chart.series.length
+            // Series
+            const notMerge = option.series?.length !== chart.series.length
+            option.series = chart.series
+
             chart.echart?.setOption(option, { notMerge })
             chart.echart?.resize()
         })
