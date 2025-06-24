@@ -75,14 +75,14 @@
                     "title": "Heat Colors",
                     "type": "array",
                     "dataDrivenDisabled": true,
-                    "order": 4,
+                    "order": 5,
                     "items": {
                         "title": "Color",
                         "description": "The color of the state in the chart.",
                         "type": "color",
                         "color": true,
                         "required": true,
-                        "order": 2
+                        "order": 1
                     }
                 }
             }

@@ -9,7 +9,7 @@
         "max": 100,
         "continuous": true,
         "showValues": false,
-        "colors": ["#fff7bc", "#fee391", "#fec44f", "#fe9929", "#ec7014", "#cc4c02", "#993404", "#662506"]
+        "colors": [null, null, null]
     },
     "dataseries": [
         {

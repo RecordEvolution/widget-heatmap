@@ -262,7 +262,10 @@ export class WidgetHeatmap extends LitElement {
             option.visualMap.min = this.inputData?.heatMap?.min ?? 0
             option.visualMap.max = this.inputData?.heatMap?.max ?? 14
             option.visualMap.type = this.inputData?.heatMap?.continuous ? 'continuous' : 'piecewise'
-            option.visualMap.inRange.color = this.inputData?.heatMap?.colors
+            option.visualMap.inRange.color =
+                this.inputData?.heatMap?.colors?.map(
+                    (c, i) => c ?? this.theme?.theme_object?.visualMap?.color?.[i]
+                ) ?? this.theme?.theme_object?.visualMap?.color
 
             const oldOption: any = chart.echart?.getOption() ?? {}
             const notMerge = oldOption.series?.length !== chart.series.length
