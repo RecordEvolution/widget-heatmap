@@ -131,7 +131,6 @@ export class WidgetHeatmap extends LitElement {
         this.registerTheme(this.theme)
         // Add ResizeObserver for chart container
         if (this.chartContainer) {
-            console.log('Adding ResizeObserver to chart container', this.chartContainer)
             this.resizeObserver = new ResizeObserver(() => {
                 this.canvasList.forEach((chart) => {
                     chart.echart?.resize()
