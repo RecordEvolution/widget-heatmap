@@ -27,7 +27,7 @@
                     "title": "Y-Axis Label",
                     "type": "string",
                     "dataDrivenDisabled": false,
-                    "order": 3
+                    "order": 4
                 },
                 "showLegend": {
                     "title": "Show Legend",
@@ -41,7 +41,7 @@
         "heatMap": {
             "title": "Heat Settings",
             "type": "object",
-            "order": 6,
+            "order": 4,
             "properties": {
                 "min": {
                     "title": "Min Value",

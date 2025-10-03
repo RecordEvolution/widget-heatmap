@@ -227,7 +227,6 @@ export class WidgetHeatmap extends LitElement {
 
         this.canvasList.forEach((chart, label) => {
             chart.series.sort((a, b) => ((a.name as string) > (b.name as string) ? 1 : -1))
-            this.requestUpdate()
 
             const option: any = chart.echart?.getOption() ?? window.structuredClone(this.template)
 
@@ -263,7 +262,10 @@ export class WidgetHeatmap extends LitElement {
             option.visualMap[0].max = this.inputData?.heatMap?.max ?? 14
             option.visualMap[0].type = this.inputData?.heatMap?.continuous ? 'continuous' : 'piecewise'
             option.visualMap[0].inRange.color = this.inputData?.heatMap?.colors?.map(
-                (c, i) => c || this.theme?.theme_object?.visualMap?.color?.[i]
+                (c, i) =>
+                    c ||
+                    this.theme?.theme_object?.visualMap?.color?.[i] ||
+                    ['#bf444c', '#d88273', '#f6efa6'][i % 3] // default colors
             )
             if (!option.visualMap[0].inRange.color?.length) {
                 option.visualMap[0].inRange.color = this.theme?.theme_object?.visualMap?.color ?? [
