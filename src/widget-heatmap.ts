@@ -282,6 +282,7 @@ export class WidgetHeatmap extends LitElement {
             chart.echart?.setOption(option, { notMerge })
             chart.echart?.resize()
         })
+        this.requestUpdate()
     }
 
     xAxisType(): 'value' | 'log' | 'category' | 'time' | undefined {
