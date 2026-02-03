@@ -5,53 +5,68 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+/**
+ * The main heading displayed above the heatmap. Use to describe what data relationship is being visualized.
+ */
 export type Title = string;
+/**
+ * Secondary text displayed below the title. Use for additional context like data source, time period, or measurement units.
+ */
 export type Subtitle = string;
+/**
+ * Label text displayed below the horizontal axis. Describes what the x-dimension represents (e.g., 'Hour of Day', 'Category').
+ */
 export type XAxisLabel = string;
+/**
+ * Label text displayed beside the vertical axis. Describes what the y-dimension represents (e.g., 'Day of Week', 'Sensor ID').
+ */
 export type YAxisLabel = string;
 /**
- * If checked, a legend will be shown in the chart.
+ * When enabled, displays a color scale legend showing the mapping between colors and heat values.
  */
 export type ShowLegend = boolean;
 /**
- * The minimum value of the heatmap. Values below this will be colored with the first color in the heatmap colors.
+ * The lower bound of the heat scale. Values at or below this will be colored with the first color in the heat colors array. Set based on your data's expected minimum.
  */
 export type MinValue = number;
 /**
- * The maximum value of the heatmap. Values above this will be colored with the last color in the heatmap colors.
+ * The upper bound of the heat scale. Values at or above this will be colored with the last color in the heat colors array. Set based on your data's expected maximum.
  */
 export type MaxValue = number;
 /**
- * If checked, the heatmap will be drawn as a continuous gradient. Otherwise it will be drawn as discrete blocks.
+ * When enabled, colors blend smoothly as a continuous gradient between defined colors. When disabled, colors appear as discrete blocks with sharp boundaries.
  */
 export type Continuous = boolean;
 /**
- * If checked, the heatmap will show the values of the data points in the chart.
+ * When enabled, displays the numeric heat value inside each cell. Useful for precise reading but may clutter dense heatmaps.
  */
 export type ShowValues = boolean;
+/**
+ * Array of colors defining the heat scale gradient, from lowest to highest values. Common patterns: blue-to-red for temperature, white-to-dark for intensity, green-yellow-red for status.
+ */
 export type HeatColors = Color[];
 /**
- * The name for this data series
+ * The name identifier for this data series. Used in tooltips and legends.
  */
 export type Label = string;
 /**
- * The x value of the data point.
+ * The horizontal axis category or value for this data point (e.g., hour number, category name).
  */
 export type XValue = string;
 /**
- * The y value of the data point.
+ * The vertical axis category or value for this data point (e.g., day name, sensor ID).
  */
 export type YValue = string;
 /**
- * The heat value of the data point. This is the value that will be used to determine the color of the heatmap.
+ * The numeric intensity value that determines the cell color based on the heat color scale.
  */
 export type HeatValue = number;
 /**
- * You can specify a column in the input data to autogenerate dataseries for each distinct entry in this column. E.g. if you have a table with columns [city, timestamp, temperature] and specify 'city' as split column, then you will get a line for each city.
+ * Column value used to split data into multiple heatmaps. Each unique value creates a separate chart (e.g., split by region to show one heatmap per region).
  */
 export type SplitDataBy = string;
 /**
- * The data used to draw this data series.
+ * Array of data points. Each point specifies its x position, y position, and heat value.
  */
 export type Data = {
     x?: XValue;
@@ -60,12 +75,18 @@ export type Data = {
     pivot?: SplitDataBy;
     [k: string]: unknown;
 }[];
+/**
+ * Array of data series configurations. Each series provides the data points for the heatmap grid.
+ */
 export type Dataseries = {
     label?: Label;
     data?: Data;
     [k: string]: unknown;
 }[];
 
+/**
+ * A heatmap chart widget for visualizing data intensity across two categorical or ordinal dimensions. Use this widget to display patterns in data such as activity over time, correlation matrices, geographic data density, or any metric that varies across two axes. Colors represent value intensity from minimum to maximum, with optional continuous gradient or discrete block rendering. Ideal for identifying patterns, anomalies, and trends in multi-dimensional data.
+ */
 export interface InputData {
     title?: Title;
     subTitle?: Subtitle;
@@ -74,12 +95,18 @@ export interface InputData {
     dataseries?: Dataseries;
     [k: string]: unknown;
 }
+/**
+ * Configuration for the chart axes and legend display.
+ */
 export interface AxisSettings {
     xAxisLabel?: XAxisLabel;
     yAxisLabel?: YAxisLabel;
     showLegend?: ShowLegend;
     [k: string]: unknown;
 }
+/**
+ * Configuration for the heatmap color mapping and value display.
+ */
 export interface HeatSettings {
     min?: MinValue;
     max?: MaxValue;
@@ -89,7 +116,7 @@ export interface HeatSettings {
     [k: string]: unknown;
 }
 /**
- * The color of the state in the chart.
+ * A color in the gradient scale. Add multiple colors for richer gradients (e.g., blue → yellow → red).
  */
 export interface Color {
     [k: string]: unknown;
