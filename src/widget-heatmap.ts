@@ -150,7 +150,29 @@ export class WidgetHeatmap extends LitElement {
 
         if (!theme || !theme.theme_object || !theme.theme_name) return
 
-        echarts.registerTheme(theme.theme_name, theme.theme_object)
+        // Strip component keys for components we don't register, so ECharts
+        // doesn't merge them into the chart option as defaults.
+        const excludeKeys = [
+            'parallel',
+            'parallelAxis',
+            'geo',
+            'timeline',
+            'markPoint',
+            'markLine',
+            'markArea',
+            'toolbox',
+            'dataZoom',
+            'brush',
+            'calendar',
+            'singleAxis',
+            'polar',
+            'radar',
+            'axisPointer'
+        ]
+        const filteredTheme = Object.fromEntries(
+            Object.entries(theme.theme_object).filter(([key]) => !excludeKeys.includes(key))
+        )
+        echarts.registerTheme(theme.theme_name, filteredTheme)
     }
 
     transformData() {
@@ -175,24 +197,10 @@ export class WidgetHeatmap extends LitElement {
                 const data =
                     (distincts.length === 1 ? ds.data : ds.data?.filter((d) => d.pivot === piv)) ?? []
 
-                let binWidth = 0
-                let axisMax
-                let data1
-                if (this.xAxisType() === 'value') {
-                    const xValues = data.map((d) => Number(d.x)).sort((a, b) => a - b) ?? []
-                    binWidth =
-                        Math.min(...xValues.map((x, i, arr) => (i > 0 ? x - arr[i - 1] : Infinity))) ?? 0
-                    axisMax = Math.max(...xValues) + 1
-                    const offset = binWidth / 2
-
-                    data1 = data.map((d: any, j) => [Number(d.x) + 0.5, d.y, d.heat])
-                } else {
-                    data1 = data.map((d: any, j) => [d.x, d.y, d.heat])
-                }
+                const data1 = data.map((d: any) => [String(d.x), String(d.y), d.heat])
                 // preparing the echarts series option for later application
                 const pds: any = {
                     type: 'heatmap',
-                    axisMax,
                     name: name,
                     label: {
                         show: this.inputData?.heatMap?.showValues ?? false
@@ -230,6 +238,29 @@ export class WidgetHeatmap extends LitElement {
 
             const option: any = chart.echart?.getOption() ?? window.structuredClone(this.template)
 
+            // Strip component keys we don't register. ECharts' getOption() can return
+            // theme-merged defaults for these, and feeding them back into setOption
+            // triggers "Component X is used but not imported" warnings.
+            for (const key of [
+                'parallel',
+                'parallelAxis',
+                'geo',
+                'timeline',
+                'markPoint',
+                'markLine',
+                'markArea',
+                'toolbox',
+                'dataZoom',
+                'brush',
+                'calendar',
+                'singleAxis',
+                'polar',
+                'radar',
+                'axisPointer'
+            ]) {
+                delete option[key]
+            }
+
             // Title
             option.title.text = label
 
@@ -237,24 +268,12 @@ export class WidgetHeatmap extends LitElement {
             option.xAxis.name = this.inputData?.axis?.xAxisLabel ?? ''
             option.yAxis.name = this.inputData?.axis?.yAxisLabel ?? ''
 
-            option.xAxis.type = this.xAxisType()
-            option.yAxis.type = this.yAxisType()
+            option.xAxis.type = 'category'
+            option.yAxis.type = 'category'
 
-            let allData
-            if (option.xAxis.type === 'category') {
-                allData = chart.series.flatMap((s: any) => s.data)
-                const xCategories = [...new Set(allData.map((d: any) => d[0]))]
-                option.xAxis.data = xCategories
-            }
-            if (option.yAxis.type === 'category') {
-                allData ??= chart.series.flatMap((s: any) => s.data)
-                const yCategories = [...new Set(allData.map((d: any) => d[1]))]
-                option.yAxis.data = yCategories
-            }
-
-            if (option.xAxis.type === 'value') {
-                option.xAxis.max = Math.max(...chart.series.map((s: any) => s.axisMax))
-            }
+            const allData = chart.series.flatMap((s: any) => s.data)
+            option.xAxis.data = [...new Set(allData.map((d: any) => d[0]))]
+            option.yAxis.data = [...new Set(allData.map((d: any) => d[1]))]
 
             // VisualMap
             option.visualMap[0].show = this.inputData?.axis?.showLegend ?? true
@@ -283,19 +302,6 @@ export class WidgetHeatmap extends LitElement {
             chart.echart?.resize()
         })
         this.requestUpdate()
-    }
-
-    xAxisType(): 'value' | 'log' | 'category' | 'time' | undefined {
-        if (this.inputData?.axis?.timeseries) return 'time'
-        const onePoint = this.inputData?.dataseries?.[0]?.data?.[0]
-        if (!isNaN(Number(onePoint?.x))) return 'value'
-        return 'category'
-    }
-
-    yAxisType(): 'value' | 'log' | 'category' | undefined {
-        const onePoint = this.inputData?.dataseries?.[0]?.data?.[0]
-        if (!isNaN(Number(onePoint?.y))) return 'value'
-        return 'category'
     }
 
     deleteCharts() {
