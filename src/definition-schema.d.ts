@@ -87,7 +87,7 @@ export type Dataseries = {
 /**
  * A heatmap chart widget for visualizing data intensity across two categorical or ordinal dimensions. Use this widget to display patterns in data such as activity over time, correlation matrices, geographic data density, or any metric that varies across two axes. Colors represent value intensity from minimum to maximum, with optional continuous gradient or discrete block rendering. Ideal for identifying patterns, anomalies, and trends in multi-dimensional data.
  */
-export interface InputData {
+export interface HeatmapConfiguration {
     title?: Title;
     subTitle?: Subtitle;
     axis?: AxisSettings;

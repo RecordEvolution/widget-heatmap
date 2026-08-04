@@ -1,6 +1,20 @@
 {
-    "title": "inputData",
+    "title": "Heatmap Configuration",
     "description": "A heatmap chart widget for visualizing data intensity across two categorical or ordinal dimensions. Use this widget to display patterns in data such as activity over time, correlation matrices, geographic data density, or any metric that varies across two axes. Colors represent value intensity from minimum to maximum, with optional continuous gradient or discrete block rendering. Ideal for identifying patterns, anomalies, and trends in multi-dimensional data.",
+    "aiSelection": {
+        "dataShape": "Triples of (x, y, heat) in dataseries[].data[]: two categorical or ordinal coordinates and one numeric intensity at their intersection. It is a matrix, not a series — it needs values spread across both dimensions to be worth drawing.",
+        "useWhen": [
+            "Something varies across two dimensions at once and the pattern is the point — hour of day against day of week, machine against shift, sensor against location.",
+            "A correlation matrix, a density grid, or a calendar-style view of activity is wanted.",
+            "Clusters and outliers should stand out by colour rather than being read off an axis."
+        ],
+        "notFor": [
+            "One dimension against a measured value — use widget-linechart; a single-row heatmap is harder to read than a bar chart.",
+            "Which state something was in over time, drawn as spans — use widget-statehistory.",
+            "Density over a geographic area — use widget-mapbox with dataseries[].type: 'heatmap'.",
+            "Exact values that must be read rather than compared — use widget-table, or enable heatMap.showValues if the grid is small."
+        ]
+    },
     "type": "object",
     "properties": {
         "title": {

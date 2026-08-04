@@ -15,7 +15,7 @@ echarts.use([
     TitleComponent
 ])
 
-import { InputData } from './definition-schema'
+import { HeatmapConfiguration } from './definition-schema'
 import { EChartsOption, SeriesOption } from 'echarts'
 
 type Theme = {
@@ -25,7 +25,7 @@ type Theme = {
 @customElement('widget-heatmap-versionplaceholder')
 export class WidgetHeatmap extends LitElement {
     @property({ type: Object })
-    inputData?: InputData
+    inputData?: HeatmapConfiguration
 
     @property({ type: Object })
     theme?: Theme
