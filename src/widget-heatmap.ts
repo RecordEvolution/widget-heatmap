@@ -33,7 +33,16 @@ export class WidgetHeatmap extends LitElement {
     @state()
     private canvasList: Map<
         string,
-        { echart?: echarts.ECharts; series: SeriesOption[]; doomed?: boolean; element?: HTMLDivElement }
+        {
+            echart?: echarts.ECharts
+            series: SeriesOption[]
+            doomed?: boolean
+            element?: HTMLDivElement
+            // How many series were last handed to setOption. applyData() needs it
+            // to decide merge vs. rebuild, and the option it builds no longer comes
+            // from the chart, so the count has to be remembered here.
+            lastSeriesCount?: number
+        }
     > = new Map()
 
     @state() private themeBgColor?: string
@@ -236,30 +245,15 @@ export class WidgetHeatmap extends LitElement {
         this.canvasList.forEach((chart, label) => {
             chart.series.sort((a, b) => ((a.name as string) > (b.name as string) ? 1 : -1))
 
-            const option: any = chart.echart?.getOption() ?? window.structuredClone(this.template)
-
-            // Strip component keys we don't register. ECharts' getOption() can return
-            // theme-merged defaults for these, and feeding them back into setOption
-            // triggers "Component X is used but not imported" warnings.
-            for (const key of [
-                'parallel',
-                'parallelAxis',
-                'geo',
-                'timeline',
-                'markPoint',
-                'markLine',
-                'markArea',
-                'toolbox',
-                'dataZoom',
-                'brush',
-                'calendar',
-                'singleAxis',
-                'polar',
-                'radar',
-                'axisPointer'
-            ]) {
-                delete option[key]
-            }
+            // Always build the option from the template — never from getOption().
+            // getOption() returns every component normalized to an *array*, so
+            // `option.title.text = label` and the `option.xAxis.*` writes below
+            // landed on the array object and were silently discarded: on the merge
+            // path the title and both category axes froze at whatever the last
+            // rebuild left behind. Starting from the template also drops the need
+            // to strip theme-merged defaults for components we never register —
+            // the template only names components registered in echarts.use above.
+            const option: any = window.structuredClone(this.template)
 
             // Title
             option.title.text = label
@@ -294,8 +288,12 @@ export class WidgetHeatmap extends LitElement {
                 ]
             }
 
-            // Series
-            const notMerge = option.series?.length !== chart.series.length
+            // Series. A shrinking series count has to rebuild rather than merge,
+            // or ECharts keeps the surplus series from the previous render. This
+            // compares against the count actually rendered last time, which the
+            // option itself no longer carries now that it comes from the template.
+            const notMerge = chart.lastSeriesCount !== chart.series.length
+            chart.lastSeriesCount = chart.series.length
             option.series = chart.series
 
             chart.echart?.setOption(option, { notMerge })
