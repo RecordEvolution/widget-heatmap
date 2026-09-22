@@ -29,7 +29,7 @@ The element is registered as `widget-heatmap-versionplaceholder` in source. Roll
 - Source entry: `src/widget-heatmap.ts` — the single `WidgetHeatmap` LitElement.
 - Two reactive `@property` inputs are the entire host contract:
   - `inputData: HeatmapConfiguration` — typed by `src/definition-schema.d.ts`, generated from `src/definition-schema.json`.
-  - `theme: { theme_name: string; theme_object: any }` — registered with ECharts via `echarts.registerTheme`. Theme colors are also overridable through CSS custom properties `--re-text-color` and `--re-tile-background-color` read in `registerTheme()`, which take precedence over `theme_object`.
+  - `theme: { theme_name: string; theme_object: any }` — registered with ECharts via `echarts.registerTheme`. Theme colors are also overridable through CSS custom properties `--re-text-color` and `--re-tile-background-color` read in `registerTheme()`, which take precedence over `theme_object`. These are not snapshotted: `registerTheme()` stores a `var(--re-…, <theme value>)` chain, so a change to the host property repaints the tile live without the widget being told.
 - `src/definition-schema.json` is the source of truth for the widget's configurable schema; the IronFlock platform uses it to render the widget configuration UI. AI-readable `title`/`description` fields drive both UX and downstream agent tooling — keep them meaningful, then run `npm run types`.
 - `src/default-data.json` documents the expected `inputData` shape (used by the demo).
 
