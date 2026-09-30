@@ -75,7 +75,7 @@ export class WidgetHeatmap extends LitElement {
             title: {
                 text: 'Profile',
                 left: '10%',
-                top: 20
+                top: 0
             },
             tooltip: {
                 position: 'top'
@@ -104,8 +104,13 @@ export class WidgetHeatmap extends LitElement {
                     calculable: true,
                     realtime: true,
                     orient: 'horizontal',
-                    right: '9%',
-                    top: 20,
+                    // Centred in its own row under the title; applyData() sets
+                    // `top` and reserves the row above the plot. It used to sit
+                    // in the title's row at the right, where on narrow tiles it
+                    // ran into the title and a piecewise scale was cut off at
+                    // the left edge.
+                    left: 'center',
+                    top: 0,
                     inRange: { color: ['green', 'yellow', 'red'] }
                 }
             ],
@@ -157,6 +162,21 @@ export class WidgetHeatmap extends LitElement {
             })
             this.resizeObserver.observe(this.chartContainer)
         }
+    }
+
+    /**
+     * Resolved text colour for the chart canvas.
+     *
+     * The themeTitleColor field holds a var() chain, which the browser resolves
+     * for CSS but ECharts cannot — it paints to a canvas and needs a real
+     * colour. Read at the point of use rather than cached, so a board style
+     * edit reaches the next chart update instead of waiting for a theme change.
+     */
+    private resolvedTextColor(): string | undefined {
+        return (
+            getComputedStyle(this).getPropertyValue('--re-text-color').trim() ||
+            this.theme?.theme_object?.title?.textStyle?.color
+        )
     }
 
     registerTheme(theme?: Theme) {
@@ -294,6 +314,38 @@ export class WidgetHeatmap extends LitElement {
                     '#f6efa6'
                 ]
             }
+
+            // The top edge is a stack of rows, each with a fixed height: the
+            // chart title, then the colour scale, then the y-axis name that
+            // ECharts draws just above the plot. Sharing rows made them collide
+            // on narrow tiles. The title is the chart's label, so an empty one
+            // takes no row. A continuous scale is taller than a piecewise one:
+            // its value labels sit below the bar.
+            const showScale = this.inputData?.axis?.showLegend ?? true
+            const continuous = this.inputData?.heatMap?.continuous ?? false
+            // A piecewise scale cannot wrap or page, and at ECharts' default
+            // sizes its five pieces are wider than a phone-width tile, so it
+            // was clipped at both ends. Compact swatches and labels fit it.
+            if (!continuous) {
+                Object.assign(option.visualMap[0], {
+                    itemWidth: 14,
+                    itemHeight: 14,
+                    itemGap: 8,
+                    textGap: 4,
+                    formatter: '{value}–{value2}'
+                })
+            }
+            const TITLE_ROW = 30
+            const SCALE_ROW = continuous ? 45 : 34
+            const AXIS_NAME_ROW = 25
+            const scaleTop = label ? TITLE_ROW : 0
+            option.visualMap[0].top = scaleTop
+            option.grid.top =
+                scaleTop + (showScale ? SCALE_ROW : 0) + (option.yAxis.name ? AXIS_NAME_ROW : 10)
+            // The theme's text colour was picked for its own background and
+            // vanishes when the host overrides the tile colours.
+            const textColor = this.resolvedTextColor()
+            if (textColor) option.visualMap[0].textStyle = { color: textColor }
 
             // Series. A shrinking series count has to rebuild rather than merge,
             // or ECharts keeps the surplus series from the previous render. This
