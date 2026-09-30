@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm start` — Runs `watch` + `@web/dev-server` (`wds`) concurrently; serves `demo/index.html` (config opens `/demo/`).
 - `npm run types` — Regenerates `src/definition-schema.d.ts` from `src/definition-schema.json` via `json-schema-to-typescript` (`json2ts`). Run this whenever `definition-schema.json` changes.
 - `npm run analyze` — Custom Elements Manifest analyzer (lit preset).
-- `npm run release` — `npm version patch`: preflight guards (on `main`, clean tree, not behind `origin/main`, generated files current, build passes), then commit, bare-semver tag, `git push --follow-tags`, then waits on the CI run and fails if the npm publish fails. `npm run release:minor` / `release:major` for other bumps.
+- `npm run release` — `npm version patch`: preflight guards (on `main`, clean tree, not behind `origin/main`, generated files current, build passes), then the bump and a `dist/` rebuild (the `version` hook, so the local build registers the new tag), then commit, bare-semver tag, `git push --follow-tags`, then waits on the CI run and fails if the npm publish fails. `npm run release:minor` / `release:major` for other bumps.
 - `npm run link` / `npm run unlink` — Build + `npm link` against `../RESWARM/frontend` for local integration testing inside the IronFlock platform monorepo.
 
 No test runner is configured.
